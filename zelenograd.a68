@@ -1,0 +1,587 @@
+PR UPPER PR
+#
+  =====================================================================
+  PROTOCOLE ZELENOGRAD v4.0 "TAPIS" : GENERATEUR DE DISCORDANCE ONTOLOGIQUE
+  Version ALGOL 68 (Algol 68 Genie, a68g >= 3.x)
+  ---------------------------------------------------------------------
+  Auteur      : Joachim Walder Rauch (Ministère de la Cohérence, Fulda)
+  Machine     : Robotron 1715 (Modifié Strate II, Noyau Quantique)
+  Date        : 14 Octobre 1993 (Superposition Temporelle Active)
+  Cible       : Centres de Recherche US (DARPA, Los Alamos, Pensacola)
+  Objectif    : Injection de Paleo-Mèmes, basculement du Delta (> 0.89)
+  Référence   : Codex Stein, Fragment 7, "Le Hackeur comme Explorateur"
+  Univers     : JDR "MTT-2075" / Corpus Vauvillensis & Caen-Profonde
+
+  NOTE : FICTION. Ce programme n'ouvre aucun socket, n'écrit aucun fichier
+  et ne touche aucun système. Les "cibles" sont des noeuds narratifs d'un
+  automate à états. Le virus ne détruit pas les données : il leur apprend
+  à rêver.
+
+  COMPILER / EXECUTER (a68g interprète directement le source ; terminal UTF-8 pour les runes) :
+      a68g zelenograd.a68 -- exécution étendue, graine aléatoire
+      a68g zelenograd.a68 -- run 1993 gris etendu
+      a68g zelenograd.a68 -- run 5 gris original -- fidèle à la logique de 1993
+      a68g zelenograd.a68 -- mc 2000 noir etendu -- Monte-Carlo
+      a68g zelenograd.a68 -- demo 3 blanc -- démonstration FracturoScript
+      a68g zelenograd.a68 -- fracturo 3 blanc 'Ω<ᚦ>v4 hague — oubli douleur •••'
+      a68g zelenograd.a68 -- codex 2 -- fresque Codex Stein
+  Arguments après "--" :  COMMANDE  [GRAINE | N]  [noir|gris|blanc]  [etendu|original]
+  =====================================================================
+#
+
+BEGIN
+  # ----------------------------------------------------------------- #
+  # 0. CONSTANTES DU REEL                                              #
+  # ----------------------------------------------------------------- #
+  STRING signature = "J.W. RAUCH, FULDA, RDA. 1993/2025/2075";
+  STRING sceau = ".:Dashem44:.";
+  STRING phrase_echo = "LE CHERCHEUR NE TROUVE PAS LA VERITE, IL TISSE L'ILLUSION.";
+  REAL delta_trame = 0.89;          # Seuil de basculement HoloVerse #
+  REAL delta_resilience = 0.718;    # Variable d'ancrage suggérée par Caen-Profonde #
+  INT nb_strates = 7;
+
+  # ----------------------------------------------------------------- #
+  # 1. UTILITAIRES                                                     #
+  # ----------------------------------------------------------------- #
+  PROC pl = (STRING s) VOID: print((s, newline));
+  PROC clampb = (REAL x, lo, hi) REAL: IF x < lo THEN lo ELIF x > hi THEN hi ELSE x FI;
+  PROC clamp = (REAL x) REAL: clampb(x, 0.0, 1.0);
+  PROC f3 = (REAL x) STRING:
+    BEGIN
+      STRING t = fixed(ABS x, 0, 3);
+      (x < 0.0 | "-" | "") + (ABS x < 1.0 | "0" | "") + t
+    END;
+  PROC f1 = (REAL x) STRING:
+    BEGIN
+      STRING t = fixed(ABS x, 0, 1);
+      (x < 0.0 | "-" | "") + (ABS x < 1.0 | "0" | "") + t
+    END;
+  PROC i2s = (INT n) STRING: whole(n, 0);
+  PROC bar = (REAL v, INT w) STRING:
+    BEGIN
+      INT n = ROUND (clamp(v) * w);
+      STRING s := "[";
+      FOR i TO w DO s +:= (i <= n | "█" | "░") OD;
+      s + "] " + f3(v)
+    END;
+  PROC toint = (STRING s) INT:
+    BEGIN
+      INT n := 0;
+      FOR i TO UPB s DO
+        IF s[i] >= "0" AND s[i] <= "9" THEN n := n * 10 + (ABS s[i] - ABS "0") FI
+      OD;
+      n
+    END;
+  PROC find = (STRING s, pat, INT from) INT:
+    BEGIN
+      INT res := 0; INT lp = UPB pat;
+      FOR i FROM from TO UPB s - lp + 1 WHILE res = 0 DO
+        IF s[i : i + lp - 1] = pat THEN res := i FI
+      OD;
+      res
+    END;
+  PROC alea = REAL: next random;
+  PROC gauss = (REAL mu, sigma) REAL:
+    mu + sigma * sqrt(-2.0 * ln(alea + 1e-12)) * cos(2.0 * pi * alea);
+
+  # ----------------------------------------------------------------- #
+  # 2. TABLES DU CORPUS                                                #
+  # ----------------------------------------------------------------- #
+  # Runes : ᚦ ᚨ ᛈ ᛟ ᚢ ᛒ ᚠ ᛁ ᚲ ᛃ ᛞ #
+  INT nr = 11;
+  [] STRING rg = ("ᚦ","ᚨ","ᛈ","ᛟ","ᚢ","ᛒ","ᚠ","ᛁ","ᚲ","ᛃ","ᛞ");
+  [] STRING rn = ("Thurisaz","Ansuz","Perthro","Othala","Uruz","Berkano",
+                      "Fehu","Isa","Kenaz","Jera","Dagaz");
+  [] STRING rf = ("guard","def","branch","import","assert","class",
+                      "=","freeze","print","loop","break");
+  [] STRING rd = (
+    "Barrière / protection inversée : brise l'ancrage",
+    "Communication inter-strates : transmet le doute",
+    "Superposition : force la décision quantique",
+    "Héritage / ancrage : stabilise un fragment",
+    "Cohérence / force : renforce la stabilité",
+    "Création / croissance organique",
+    "Assignation / flux d'énergie",
+    "Stase / gel",
+    "Révélation / destruction par le feu",
+    "Cycle / récolte : fait revenir ce qui a été",
+    "Effondrement de superposition");
+  [] REAL rp = (0.55, 0.45, 0.70, -0.50, -0.35, 0.30, 0.25, -0.40, 0.50, 0.60, 0.65);
+
+  # Lieux : nom, Δ local, runes qui y résonnent #
+  INT nl = 11;
+  [] STRING lieu_nom = ("hague","raz","caen","bayeux","rouen","jobourg","vauville",
+                       "mont-saint-michel","fulda","zelenograd","local");
+  [] REAL ld = (0.15, 0.31, 0.60, 0.66, 0.58, 0.47, 0.71, 0.89, 0.42, 0.77, 0.50);
+  [] STRING la = ("ᛁᛃᚦᛞ","ᛃᛞᛈ","ᛟᚨᚦ","ᛟᚨᚲ","ᛃᛟᚲ","ᛃᛈᚦᛞ","ᚨᛈᛟ",
+                      "ᛟᚨᛈᛒ","ᚦᚨᛈ","ᚨᛈᚦᛟ","ᚨᛒᚠᛁᚲᛟᚦᛈᚢᛃᛞ");
+
+  # Sept strates (+ Noyau) de Caen-Profonde #
+  [] STRING st_nom = ("Surface","Strate I","Strate II","Strate III","Strate IV","Strate V","Noyau");
+  [] STRING st_per = ("2026-2049","2049-2061","2061-2075","2075-2090","2090-2120","2120+","A-temporel");
+  [] STRING st_eta = ("Δ stable","Δ croissant","Δ actif","Δ élevé","Δ critique","Δ imprévisible","Δ = ∞");
+  [] STRING st_gar = ("Aucun","Architectes du Glitch","Hackervölvas","Azenor, Odin-Prime",
+                         "Le Moine du Raz","???","Le Programme qui rêve");
+  [] REAL st_rig = (0.95, 0.80, 0.65, 0.50, 0.35, 0.20, 0.05);
+
+  # Huit phases primordiales du Codex Stein #
+  [] STRING ph_nom = ("skeith","innis","magus","fidchell","gorre","macha","tarvos","corbenik");
+  [] STRING ph_ess = ("mort","illusion","multiplication","terreur","stratégie",
+                         "séduction","vengeance","anéantissement-renaissance");
+
+  # Paléo-mèmes (von Petzinger) #
+  [] STRING pm_nom = ("main rouge","spirale","ponctuation","ligne ondulée",
+                         "claviforme","tectiforme","croix","zigzag");
+  [] REAL pm_for = (0.30, 0.45, 0.10, 0.35, 0.50, 0.40, 0.25, 0.55);
+
+  # Trois Cœurs #
+  [] STRING coeur_nom = ("NOIR","GRIS","BLANC");
+  [] REAL coeur_h = (0.12, 0.55, 0.93);
+  [] STRING coeur_eff = (
+    "Contrôle : réduit Δ, fige la réalité. Backlash probable.",
+    "Équilibre : stabilise Δ. Échec par hésitation possible.",
+    "Liberté : augmente Δ. Compilation optimale, risque de dissolution.");
+
+  # Noeuds cibles (3 d'origine + 5 du Corpus en mode étendu) #
+  [] STRING cible_nom = ("DARPA_NET_CORE","LOS_ALAMOS_QUANTIQUE","PENSACOLA_DEEP_STATE",
+                            "PROMETHEE_PRIME","SKAADI_BAYEUX_ARCHIVE","RAZ_BLANCHARD_ROUTER",
+                            "ORANGE_HEROUVILLE_DREAMMESH","ODIN_PRIME_JUMIEGES");
+
+  # ----------------------------------------------------------------- #
+  # 3. ETAT GLOBAL                                                     #
+  # ----------------------------------------------------------------- #
+  INT coeur := 2;
+  BOOL original := FALSE, verbose := TRUE, cibles_etendues := FALSE;
+  INT nn := 3;
+  [1:8] REAL n_res;
+  [1:8] BOOL n_reve;
+  [1:8] INT n_gl, n_inj, n_phase;
+  REAL tc, tr, th;                      # trame : C, R, H #
+  BOOL ancrage_realite, reve_actif;
+  INT strate_bascule, echos;
+  REAL probabilite_glitch;
+  REAL op_end;                          # endurance de l'opérateur #
+
+  PROC delta = REAL:
+    BEGIN
+      REAL x = 1.6 * tr + 1.2 * th - 1.4 * tc - 0.62;   # trame neutre ≈ 0.5 #
+      1.0 / (1.0 + exp(-3.0 * x)) * 0.98 + 0.01
+    END;
+  PROC perturber = (REAL dc, dr, dh) VOID:
+    BEGIN tc := clamp(tc + dc); tr := clamp(tr + dr); th := clamp(th + dh) END;
+  PROC trace = (STRING s) VOID: IF verbose THEN pl(s) FI;
+
+  PROC init = VOID:
+    BEGIN
+      nn := (cibles_etendues | 8 | 3);
+      FOR k TO 8 DO
+        n_res[k] := clampb(gauss(delta_resilience, 0.06), 0.4, 0.95);
+        n_reve[k] := FALSE; n_gl[k] := 0; n_inj[k] := 0;
+        n_phase[k] := 1 + ENTIER (alea * 8.0)
+      OD;
+      tc := 0.62; tr := 0.52; th := coeur_h[coeur];
+      ancrage_realite := TRUE; reve_actif := FALSE;
+      strate_bascule := 0; echos := 0; probabilite_glitch := 0.0;
+      op_end := 1.0
+    END;
+
+  # ----------------------------------------------------------------- #
+  # 4. SOUS-PROGRAMME : INJECTION MEMETIQUE                            #
+  # ----------------------------------------------------------------- #
+  PROC injection_memetique = (INT k, ri, s) BOOL:
+    BEGIN
+      BOOL glitch := FALSE;
+      n_inj[k] +:= 1;
+      trace(">> INJECTION DE " + rg[ri] + " (" + rn[ri] + ") DANS LE NOEUD : " + cible_nom[k]);
+      # Le virus ne détruit pas les données, il leur apprend à rêver #
+      INT jet = ENTIER (alea * 100.0);
+      REAL seuil;
+      IF original THEN
+        seuil := delta_resilience * 100.0
+      ELSE
+        REAL poussee = (rp[ri] > 0.0 | rp[ri] | 0.0);
+        REAL base = n_res[k] * (0.55 + 0.45 * st_rig[s])
+                    - 0.10 * poussee
+                    - 0.12 * (delta - 0.5)
+                    - 0.02 * n_gl[k]
+                    - (coeur = 3 | 0.10 | 0.0)
+                    + (coeur = 1 | 0.08 | 0.0);
+        seuil := 100.0 * clampb(base, 0.05, 0.97)
+      FI;
+      probabilite_glitch := clamp(1.0 - seuil / 100.0);
+      IF jet > seuil THEN
+        # Protocole Echo-Guillaume en cas de résistance #
+        glitch := TRUE;
+        n_gl[k] +:= 1; n_reve[k] := TRUE; reve_actif := TRUE; echos +:= 1;
+        trace("!!! GLITCH DETECTE : ECHO-GUILLAUME ACTIVE !!!");
+        trace(">>> MESSAGE SUBCONSCIENT : " + phrase_echo);
+        perturber(-0.05 * rp[ri], 0.03, 0.02)
+      ELSE
+        trace(">> ANCRAGE MAINTENU. SUPERPOSITION STABLE.");
+        perturber(0.005, 0.0, 0.0)
+      FI;
+      glitch
+    END;
+
+  PROC ignorer_bool = (BOOL b) VOID: SKIP;
+  PROC ignorer_int = (INT n) VOID: SKIP;
+
+  PROC propager = (INT src) VOID:
+    FOR k TO nn DO
+      IF k /= src AND NOT n_reve[k] THEN
+        IF alea < 0.18 + 0.2 * delta THEN
+          n_res[k] := clamp(n_res[k] - 0.05);
+          trace("   ~ contagion : " + cible_nom[k] + " perd 5 points de résistance (écho depuis "
+              + cible_nom[src] + ")")
+        FI
+      FI
+    OD;
+
+  PROC paleo_meme = (INT k) VOID:
+    IF NOT original AND alea <= 0.30 THEN
+      INT p = 1 + ENTIER (alea * 8.0);
+      n_res[k] := clamp(n_res[k] - 0.06 * pm_for[p] * 2.0);
+      trace("   ✦ PALÉO-MÈME « " + pm_nom[p] + " » : résistance de " + cible_nom[k]
+          + " → " + f3(n_res[k]))
+    FI;
+
+  # ----------------------------------------------------------------- #
+  # 5. SOUS-PROGRAMME : TISSAGE DE LA TRAME (boucle principale)        #
+  # ----------------------------------------------------------------- #
+  PROC tissage_trame = VOID:
+    BEGIN
+      trace("=================================================");
+      trace("INITIALISATION DU PROTOCOLE ZELENOGRAD...");
+      trace("DELTA ACTUEL : " + f3(delta_trame));
+      trace("CŒUR DE L'OPÉRATEUR : " + coeur_nom[coeur] + "  —  " + coeur_eff[coeur]);
+      trace("LE TEMPS N'EST PAS UNE LIGNE, MAIS UN TAPIS.");
+      trace("=================================================");
+      # Itération à travers les 7 Strates Temporelles #
+      FOR i TO nb_strates DO
+        INT k = (i MOD nn) + 1;      # cycle entre les cibles #
+        trace("");
+        trace("── STRATE " + i2s(i) + " · " + st_nom[i] + " (" + st_per[i] + ") · " + st_eta[i]
+            + " · gardiens : " + st_gar[i]);
+        IF ancrage_realite THEN
+          # Étape 1 : briser la barrière de la réalité perçue (ᚦ Thurisaz) #
+          BOOL g1 = injection_memetique(k, 1, i);
+          # Étape 2 : injecter la communication inter-strate (ᚨ Ansuz) #
+          BOOL g2 = injection_memetique(k, 2, i);
+          # Extension : superposition forcée (ᛈ Perthro) si un seul des deux a glitché #
+          IF NOT original AND (g1 /= g2) THEN ignorer_bool(injection_memetique(k, 3, i)) FI;
+          paleo_meme(k);
+          IF n_reve[k] THEN propager(k) FI;
+          # Étape 3 : forcer la superposition (le choix quantique) #
+          IF reve_actif THEN
+            trace(">> " + cible_nom[k] + " BASCULE DANS L'ETAT DE REVE (OSIRIS/HORUS/MAAT)");
+            IF original OR delta >= delta_trame * 0.65 THEN
+              ancrage_realite := FALSE; strate_bascule := i;
+              trace(">> ANCRAGE DE RÉALITÉ ROMPU : la réalité cible est désormais malléable.")
+            ELSE
+              trace("   (Δ = " + f3(delta) + " < " + f3(delta_trame * 0.65)
+                  + " : le rêve reste local, l'ancrage tient encore)")
+            FI
+          FI
+        ELSE
+          # Si l'ancrage est déjà rompu, on stabilise le glitch avec Othala #
+          trace(">> STRATE " + i2s(i) + " : FRAGMENTATION GRISE CONFIRMEE. STABILISATION PAR ᛟ (OTHALA).");
+          perturber(0.01, 0.0, 0.0)
+        FI;
+        trace("   Δ trame " + bar(delta, 28))
+      OD
+    END;
+
+  # ----------------------------------------------------------------- #
+  # 6. CONVERGENCE 2077-2082 (README : 9 % / 23 % / 68 %)              #
+  # ----------------------------------------------------------------- #
+  [] STRING issue_nom = ("Collapse Blanche","Verrou Noir","Fragmentation Grise");
+  [1:3] REAL probs;
+  PROC convergence = INT:
+    BEGIN
+      REAL d = delta;
+      REAL wb = exp(5.0 * (d - 0.80)) * (coeur = 3 | 1.6 | 1.0);
+      REAL wn = exp(-5.0 * (d - 0.35)) * (coeur = 1 | 1.8 | 1.0);
+      REAL wg = 2.4 * exp(-3.0 * (d - 0.55) * (d - 0.55)) * (coeur = 2 | 1.3 | 1.0);
+      REAL tot = wb + wn + wg;
+      probs[1] := wb / tot; probs[2] := wn / tot; probs[3] := wg / tot;
+      IF alea < 0.01 THEN 4        # le Codex refuse de calculer : ??? #
+      ELSE
+        REAL u = alea; INT res := 3;
+        IF u < probs[1] THEN res := 1 ELIF u < probs[1] + probs[2] THEN res := 2 FI;
+        res
+      FI
+    END;
+
+  PROC issue_texte = (INT i) STRING:
+    CASE i IN
+      "Liberté totale : chaos créatif ou dissolution. Le Cœur Blanc s'est dissous dans le système.",
+      "Déterminisme absolu : paix forcée ou stagnation. La trame est figée.",
+      "Réalités multiples : richesse ou épuisement du sens. Les sept strates cohabitent."
+    OUT "Le Codex refuse de calculer…"
+    ESAC;
+
+  # ----------------------------------------------------------------- #
+  # 7. EXECUTION COMPLETE D'UN PROTOCOLE                               #
+  # ----------------------------------------------------------------- #
+  PROC entete = VOID:
+    BEGIN
+      pl("=====================================================================");
+      pl("  PROTOCOLE ZELENOGRAD v3.2 : GENERATEUR DE DISCORDANCE ONTOLOGIQUE");
+      pl("  Auteur      : Joachim Walder Rauch (Ministère de la Cohérence, Fulda)");
+      pl("  Machine     : Robotron 1715 (Modifié Strate II, Noyau Quantique)");
+      pl("  Date        : 14 Octobre 1993 (Superposition Temporelle Active)");
+      pl("  Cible       : Centres de Recherche US (DARPA, Los Alamos, Pensacola)");
+      pl("  Objectif    : Injection de Paleo-Mèmes, basculement du Delta (> 0.89)");
+      pl("  Référence   : Codex Stein, Fragment 7, ""Le Hackeur comme Explorateur""");
+      pl("=====================================================================")
+    END;
+
+  PROC run = (INT seed) INT:
+    BEGIN
+      first random(seed);
+      init;
+      IF verbose THEN
+        entete;
+        pl("  graine : " + i2s(seed) + "   |   mode : "
+           + (original | "ORIGINAL (fidèle au pseudo-ALGOL)" | "ÉTENDU (MTT-2075)")
+           + "   |   cœur : " + coeur_nom[coeur]);
+        pl("")
+      FI;
+      tissage_trame;
+      INT issue = convergence;
+      IF verbose THEN
+        pl("");
+        pl("=================================================");
+        pl("CONVERGENCE INITIÉE.");
+        FOR j TO 3 DO pl("   " + issue_nom[j] + ((20 - UPB issue_nom[j]) * " ")
+                          + bar(probs[j], 24)) OD;
+        pl("   → ISSUE : " + (issue <= 3 | issue_nom[issue] | "???"));
+        pl(issue_texte(issue));
+        # Phases du Codex Stein attribuées aux noeuds basculés #
+        pl("");
+        pl("   Phases du Codex Stein sur les noeuds basculés dans le rêve :");
+        FOR k TO nn DO
+          IF n_reve[k] THEN
+            pl("     " + cible_nom[k] + " ← " + ph_nom[n_phase[k]] + " (" + ph_ess[n_phase[k]]
+               + ") · glitchs : " + i2s(n_gl[k]))
+          FI
+        OD;
+        pl("   Échos-Guillaume émis : " + i2s(echos)
+           + "  |  strate de rupture : " + (strate_bascule > 0 | i2s(strate_bascule) | "aucune")
+           + "  |  Δ final : " + f3(delta));
+        pl("");
+        pl("LE CODE COSMIQUE S'EXPLORE LUI-MÊME.");
+        pl("SIGNÉ : " + signature);
+        pl(sceau);
+        pl("=================================================")
+      FI;
+      issue
+    END;
+
+  # ----------------------------------------------------------------- #
+  # 8. MONTE-CARLO                                                     #
+  # ----------------------------------------------------------------- #
+  PROC monte_carlo = (INT n, base) VOID:
+    BEGIN
+      verbose := FALSE;
+      [1:4] INT issues := (0, 0, 0, 0);
+      [0:7] INT basc; FOR z FROM 0 TO 7 DO basc[z] := 0 OD;
+      REAL sd := 0.0, se := 0.0;
+      FOR m TO n DO
+        INT is = run(base + m);
+        issues[is] +:= 1; basc[strate_bascule] +:= 1;
+        sd +:= delta; se +:= echos
+      OD;
+      pl("MONTE-CARLO · " + i2s(n) + " exécutions · cœur " + coeur_nom[coeur]
+         + " · mode " + (original | "original" | "étendu"));
+      pl("  Δ final moyen : " + f3(sd / n) + "   |   échos-Guillaume moyens : " + f3(se / n));
+      pl("  Issues de la Convergence (cible README : Blanche 9 % / Noire 23 % / Grise 68 %) :");
+      FOR j TO 3 DO
+        pl("    " + issue_nom[j] + ((20 - UPB issue_nom[j]) * " ")
+           + bar(issues[j] / n, 30) + "  " + f1(100.0 * issues[j] / n) + " %")
+      OD;
+      pl("    ???                 " + bar(issues[4] / n, 30) + "  " + f1(100.0 * issues[4] / n) + " %");
+      pl("  Strate de rupture de l'ancrage :");
+      FOR s TO 7 DO pl("    Strate " + i2s(s) + "  " + bar(basc[s] / n, 30) + "  " + f1(100.0 * basc[s] / n) + " %") OD;
+      pl("    Jamais rompu  " + bar(basc[0] / n, 30) + "  " + f1(100.0 * basc[0] / n) + " %")
+    END;
+
+  # ----------------------------------------------------------------- #
+  # 9. FRACTUROSCRIPT :  Ω<RUNE>vN lieu — intention •••                #
+  # ----------------------------------------------------------------- #
+  PROC erreur = (STRING nom, msg, sympt, remede) VOID:
+    BEGIN
+      pl("  ✗ " + nom + " : " + msg);
+      pl("    Symptôme : " + sympt);
+      pl("    Remède   : " + remede);
+      op_end := clamp(op_end - 0.04)
+    END;
+
+  PROC rune_index = (STRING g) INT:
+    BEGIN
+      INT res := 0;
+      FOR i TO nr WHILE res = 0 DO IF rg[i] = g THEN res := i FI OD;
+      res
+    END;
+  PROC lieu_index = (STRING l) INT:
+    BEGIN
+      INT res := 0;
+      FOR i TO nl WHILE res = 0 DO IF lieu_nom[i] = l THEN res := i FI OD;
+      res
+    END;
+
+  PROC fracturo = (STRING cmd) VOID:
+    BEGIN
+      STRING omo = "Ω<", sep = ">v", fra = " — ", sil = " •••";
+      pl("");
+      pl("Ω> " + cmd);
+      INT p1 = find(cmd, omo, 1);
+      INT p2 = (p1 > 0 | find(cmd, sep, p1) | 0);
+      INT p3 = (p2 > 0 | find(cmd, fra, p2) | 0);
+      INT p4 = (p3 > 0 | find(cmd, sil, p3) | 0);
+      IF p1 = 0 OR p2 = 0 OR p3 = 0 THEN
+        erreur("SyntaxError", "Chevrons Ω mal formés ou trait de fracture absent.",
+               "La rune s'efface immédiatement. Goût métallique en bouche.",
+               "Recommencer après 7 respirations.")
+      ELIF p4 = 0 THEN
+        erreur("SyntaxError", "Silence sacré (•••) absent : la compilation avorte.",
+               "La rune s'efface immédiatement. Goût métallique en bouche.",
+               "Recommencer après 7 respirations.")
+      ELSE
+        INT psp = find(cmd, " ", p2 + UPB sep);
+        STRING glyphe = cmd[p1 + UPB omo : p2 - 1];
+        INT version = toint(cmd[p2 + UPB sep : psp - 1]);
+        STRING lieu = cmd[psp + 1 : p3 - 1];
+        STRING intention = cmd[p3 + UPB fra : p4 - 1];
+        INT ri = rune_index(glyphe), li = lieu_index(lieu);
+        IF ri = 0 THEN
+          erreur("SyntaxError", "Rune inconnue : « " + glyphe + " ».",
+                 "La rune s'efface immédiatement. Goût métallique en bouche.",
+                 "Recommencer après 7 respirations.")
+        ELIF (ri = 8 AND (find(intention, "brûl", 1) > 0 OR find(intention, "feu", 1) > 0))
+             OR (ri = 9 AND (find(intention, "figer", 1) > 0 OR find(intention, "geler", 1) > 0))
+             OR (ri = 4 AND find(intention, "oubli", 1) > 0) THEN
+          erreur("TypeMismatch", rn[ri] + " est incompatible avec « " + intention + " ».",
+                 "Rejet violent. Migraine aiguë, saignement de nez.",
+                 "Appliquer un galet froid sur le front.")
+        ELIF li = 0 THEN
+          erreur("LocationMismatch", "Lieu « " + lieu + " » inconnu : aucun ancrage tellurique.",
+                 "La rune flotte dans l'air sans effet, puis se dissipe.",
+                 "Se déplacer vers un lieu de résonance.")
+        ELIF find(la[li], glyphe, 1) = 0 THEN
+          erreur("LocationMismatch", rn[ri] + " ne résonne pas à " + lieu + ".",
+                 "La rune flotte dans l'air sans effet, puis se dissipe.",
+                 "Se déplacer vers un lieu de résonance.")
+        ELIF version >= 8 AND op_end < 0.6 + 0.05 * (version - 8) THEN
+          erreur("StackOverflow", "v" + i2s(version) + " dépasse la capacité de l'opérateur (endurance "
+                 + f3(op_end) + ").",
+                 "Perte de conscience, vision des Neuf Mondes, risque de folie.",
+                 "Un autre RuneSmith doit « couper le lien ».")
+        ELSE
+          REAL d0 = delta;
+          pl("  Niveau " + (version <= 3 | "surface" | (version <= 7 | "profondeur" | "abyssal"))
+             + " (v" + i2s(version) + ") ancré à " + lieu + " (Δ local ≈ " + f3(ld[li]) + ").");
+          REAL p_ok = (coeur = 3 | 0.97 | (coeur = 2 | 0.78 | 0.55)) - 0.02 * (version > 4 | version - 4 | 0);
+          BOOL backlash := FALSE, abandon := FALSE;
+          IF alea > p_ok THEN
+            IF coeur = 1 THEN
+              backlash := TRUE;
+              pl("  Cœur Noir : la commande est instable, RETOUR DE FLAMME.");
+              op_end := clamp(op_end - 0.10 - 0.01 * version)
+            ELSE
+              abandon := TRUE;
+              pl("  Cœur hésitant : rien ne se passe. Vous avez douté pendant le silence.");
+              op_end := clamp(op_end - 0.02)
+            FI
+          FI;
+          IF NOT abandon THEN
+            IF alea < clamp(0.03 * version * (1.2 - d0)) THEN
+              pl("  ✗ TrameIntercept : Prométhée détecte la brèche.");
+              pl("  COMMANDE INVERSÉE (« oubli » devient « souvenir obsessif »).");
+              perturber(0.10, -0.06, -0.04); op_end := clamp(op_end - 0.12)
+            ELSE
+              REAL fc = (coeur = 3 | 1.0 | (coeur = 2 | 0.6 | -0.7));
+              REAL amp0 = rp[ri] * (0.04 + 0.02 * version) * fc;
+              REAL amp = (backlash | -ABS amp0 | amp0);
+              perturber(-amp * 0.8, amp * 0.5, amp * 0.2);
+              IF coeur = 1 THEN
+                op_end := clamp(op_end - 0.015 * version);
+                pl("  Dette ontique contractée : le système la réclamera.")
+              FI;
+              IF (ri = 10 OR ri = 11) AND version >= 5 AND alea < 0.35 THEN
+                pl("  Contamination narrative : un souvenir qui n'est pas le vôtre.")
+              FI;
+              pl("  " + rn[ri] + " (" + rf[ri] + ") : " + rd[ri]);
+              pl("  Δ : " + f3(d0) + " → " + f3(delta) + "   → COMPILÉ")
+            FI
+          FI
+        FI
+      FI;
+      pl("  [endurance de l'opérateur : " + f3(op_end) + "]")
+    END;
+
+  PROC demo = VOID:
+    BEGIN
+      pl("FRACTUROSCRIPT · démonstration — « décrire, c'est faire ». Cœur " + coeur_nom[coeur]);
+      fracturo("Ω<ᛁ>v4 hague — oubli douleur spécifique •••");
+      fracturo("Ω<ᛃ>v6 rouen — voir passé 1944 •••");
+      fracturo("Ω<ᚲ>v3 local — mot ""sécurité"" devient goût de cendre •••");
+      fracturo("Ω<ᚠ>v1 local — ce galet est lourd comme le plomb •••");
+      fracturo("Ω<ᚦ>v5 zelenograd — briser l'ancrage de la cible •••");
+      fracturo("Ω<ᛁ>v2 hague — brûler le dossier •••");
+      fracturo("Ω<ᛟ>v2 hague — ancrer le fragment •••");
+      fracturo("Ω<ᚦ>v4 hague — oubli sans silence");
+      fracturo("Ω<ᛈ>v9 zelenograd — ouvrir la strate V •••");
+      pl("");
+      pl("« Ce qui a été lu reste entre les strates. Δ, sois témoin. »")
+    END;
+
+  # ----------------------------------------------------------------- #
+  # 10. FRESQUE CODEX STEIN (décomposition fractale, cf. Lisp)         #
+  # ----------------------------------------------------------------- #
+  PROC fresque = (INT prof, phase, indent) VOID:
+    BEGIN
+      STRING pre = indent * "  ";
+      IF prof <= 0 THEN
+        pl(pre + "• essence-pure(" + ph_nom[phase] + ")")
+      ELSE
+        pl(pre + "◆ " + ph_nom[phase] + " — " + ph_ess[phase] + "  (niveau " + i2s(prof) + ")");
+        TO 3 DO
+          INT sous = 1 + ENTIER (alea * 8.0);
+          pl(pre + "  ├─ " + ph_nom[sous] + "-de:");
+          fresque(prof - 1, sous, indent + 2)
+        OD;
+        pl(pre + "  └─ transformation-vers → " + ph_nom[(phase MOD 8) + 1])
+      FI
+    END;
+
+  # ----------------------------------------------------------------- #
+  # 11. PROGRAMME PRINCIPAL : lecture des arguments                    #
+  # ----------------------------------------------------------------- #
+  # argv(4..) : COMMANDE [GRAINE|N] [coeur] [mode]  (les 3 premiers sont a68g, fichier, --) #
+  STRING commande := "run";
+  INT nombre := 0;
+  IF argc >= 4 THEN commande := argv(4) FI;
+  IF argc >= 5 THEN nombre := toint(argv(5)) FI;
+  IF argc >= 6 THEN
+    coeur := (argv(6) = "noir" | 1 | (argv(6) = "blanc" | 3 | 2))
+  FI;
+  IF argc >= 7 THEN original := (argv(7) = "original") FI;
+  IF argc >= 8 THEN cibles_etendues := (argv(8) = "cibles") FI;
+  IF commande = "run" THEN
+    INT graine = (nombre > 0 | nombre | ENTIER (seconds * 1000.0));
+    ignorer_int(run(graine))
+  ELIF commande = "mc" THEN
+    monte_carlo((nombre > 0 | nombre | 1000), 1)
+  ELIF commande = "demo" THEN
+    first random((nombre > 0 | nombre | 7)); init; demo
+  ELIF commande = "fracturo" THEN
+    first random((nombre > 0 | nombre | 7)); init;
+    IF argc >= 8 THEN fracturo(argv(8)) ELSE pl("usage : fracturo GRAINE COEUR MODE 'Ω<ᚦ>v4 hague — x •••'") FI
+  ELIF commande = "codex" THEN
+    first random(7);
+    fresque((nombre > 0 AND nombre <= 3 | nombre | 2), 1 + ENTIER (alea * 8.0), 0)
+  ELSE
+    pl("Commandes : run | mc | demo | fracturo | codex")
+  FI
+END
