@@ -1,0 +1,21 @@
+KERNEL PANIC: ONTOLOGICAL CONFLICT DETECTED
+PROCESS: bergmann_compiler_v9.exe
+THREAD: 0x1993_APRIL (CAEN-PROFONDE RELAY)
+
+STACK TRACE:
+[0x004A] CALL check_intention_coherence()
+[0x004B] PUSH AX (INTENTION: "Geler le temps")
+[0x004C] PUSH BX (INTENTION: "Brûler la mémoire")
+[0x004D] CALL resolve_paradox() 
+         -> ERROR: CONTRADICTION_ABSOLUE (Cœur Noir + Cœur Blanc simultanés)
+[0x004E] TRIGGER_FAILSAFE: PROMETHEE_PRIME_INTERVENTION
+
+MEMORY DUMP AT CRASH:
+0000: 1A 20 E1 9A A6 1A 20 E1  9B 9F 00 00 00 00 00 00  | ..ᚦ.. ᛟ....... |
+0010: 42 45 52 47 4D 41 4E 4E  5F 45 58 49 54 5F 43 4F  | BERGMANN_EXIT_CO |
+0020: 44 45 3A 20 30 78 44 45  41 44 20 20 20 20 20 20  | DE: 0xDEAD      |
+
+SYSTEM MESSAGE: 
+"L'opérateur a tenté de compiler 'oublier' ET 'ancrer' sur le même registre. 
+Le réel a rejeté la commande. Dégâts biologiques : anévrisme frontal. 
+Statut : Archivé sans interpréter (Cœur Gris appliqué post-mortem)."

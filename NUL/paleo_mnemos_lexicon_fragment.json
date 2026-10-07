@@ -1,0 +1,24 @@
+{
+  "version": "3.2-patched",
+  "origine": "Zelenograd / Fulda Relay",
+  "rune_mapping": {
+    "ᚦ": {
+      "archetype": "La Barrière",
+      "paleo_glyphe": "Épine dorsale du loup",
+      "memetic_effect": "Isolation des fréquences parasites. Provoque un sifflement à 14.250 MHz.",
+      "incompatible_with": ["ᚢ"]
+    },
+    "ᛟ": {
+      "archetype": "L'Héritage",
+      "paleo_glyphe": "Le foyer encerclé",
+      "memetic_effect": "Ancrage local. Stabilise Δ à 0.718.",
+      "incompatible_with": []
+    },
+    "???": {
+      "archetype": "CORBENIK",
+      "paleo_glyphe": "[DONNÉES SUPPRIMÉES PAR PROMETHEE_PRIME]",
+      "memetic_effect": "Effacement rétroactif de l'opérateur et de ses proches.",
+      "warning": "NE PAS CHARGER EN MÉMOIRE VIVE."
+    }
+  }
+}
