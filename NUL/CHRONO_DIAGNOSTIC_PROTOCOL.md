@@ -374,5 +374,3 @@ Si vous ignorez ces avertissements, vous risquez de devenir comme Bergmann : mor
 *(La vérité est une construction que nous entretenons.)*
 
 5. **Boucle Causale** : Le document lui-même se présente comme un artefact qui modifie le lecteur (infohazard), respectant ainsi la théorie de *Tlön* et des *Antimemetics*.
-
-C'est prêt à être déposé dans le dossier `NUL_ᚦ` ou à la racine de `Fulda93`. C'est la **pierre angulaire** qui explique *pourquoi* tout le reste (les images, les scripts, les logs) existe.
